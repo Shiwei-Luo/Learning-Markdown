@@ -254,3 +254,74 @@ class Solution {
 
 ***
 
+## 713.Subarray Product Less Than K(Medium)
+
+求所有连续子数组中，数组中所有元素乘积小于k的子数组个数
+
+因为子数组中为连续数组，故应想到有双指针在子数组两端，若子数组乘积小于K，则右指针继续向右，若子数组乘积大于K，左指针向右，直至右指针遍历到数组末端。
+注意：右指针向右移动一步，==增加的子数组数量n==\===子数组中元素个数a==\===1+2+...+n-(1+2+...+n-1)\n==\===right_ptr-left_ptr+1==。
+
+```java
+class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        int right = 0;
+        int left =0;
+        int mult = 1;
+        int result = 0;
+        while(right>=left && right <nums.length){
+            if(right == left){
+                if (nums[right]<k){
+                    mult = mult*nums[right];
+                    // System.out.println(mult);
+                    result++;
+                    right++;
+                }else{
+                    right++;
+                    left++;
+                    mult = 1;
+                }
+            }else if(mult*nums[right]<k){
+                mult = mult * nums[right];
+                // System.out.println(mult);
+                result = result +right-left+1;
+                right++;
+            }else{
+                mult = mult/nums[left];
+                left++;
+            }
+        }
+        // System.out.println(result);
+        return result;
+    }
+}
+
+        
+//============================================================================
+public int numSubarrayProductLessThanK(int[] nums, int k) {
+    if (k <= 0) return 0;
+    int result = 0, pre = 1, start = 0;
+    for (int i = 0; i < nums.length; i++) {
+        pre = pre * nums[i];
+        if (pre < k) {
+            result += i - start + 1;
+        } else {
+            for (int j = start; j <= i; j++) {
+                pre = pre / nums[j];
+                if (pre < k || (j == i && pre >= k)) {
+                    start = j + 1;
+                    break;
+                }
+            }
+            result = result + i - start + 1;
+        }
+    }
+    return result;
+}    
+```
+
+###Tags: ==Two Pointer==,Array
+
+### reference: https://blog.csdn.net/katrina95/article/details/79366608
+
+***
+

@@ -2303,4 +2303,162 @@ PrintStream类有的方法，System.out都可以使用
 
 ***
 
-123235135
+### 对象序列化流
+
+对象序列化：就是将对象保存到磁盘中，或者在网络中传输对象
+这种机制就是使用一个字节序列表示一个对象，该字节序列包含：对象的类型、对象的数据和对象中存储的属性等信息
+字节序列写到文件之后，相当于文件中持久保存了一个对象的信息
+反之，该字节序列还可以从文件中读取回来，重构对象，对它进行反序列化
+
+对象序列化流：ObjectOutputStream
+对象反序列化流：ObjectInputStream
+
+####  对象序列化流： ObjectOutputStream
+
+将Java对象的原始数据类型和图形写入OutputStream。 可以使用ObjectInputStream读取（重构）对象。 可以通过使用流的文件来实现对象的持久存储。 如果流是网络套接字流，则可以在另一个主机上或另一个进程中重构对象 
+
+#### 构造方法：
+
+ObjectOutputStream(OutputStream out)：创建一个写入指定的OutputStream的ObjectOutputStream
+
+
+#### 序列化对象的方法：
+
+void writeObject(Object obj)：将指定的对象写入ObjectOutputStream
+
+一个对象要想被序列化，该对象所属的类必须必须==实现Serializable 接口==
+Serializable是一个==标记接口==，实现该接口，==不需要重写任何方法==
+
+#### 对象反序列化流ObjectInputStream
+
+ObjectInputStream反序列化先前使用ObjectOutputStream编写的原始数据和对象
+
+#### 构造方法
+
+ObjectInputStream(InputStream in)：创建从指定的InputStream读取的ObjectInputStream
+
+#### 反序列化对象的方法
+
+Object readObject()：从ObjectInputStream读取一个对象
+
+#### InvalidClassException
+
+用对象序列化流序列化了一个对象后，修改对象所属的类文件，读取数据会出问题，抛出InvalidClassException异常
+解决方案：重新序列化，给对象所属的类加一个serialVersionUID
+                    ```private static final long serialVersionUID = 42L;```
+
+####  transient
+
+给该成员变量加==**transient**==关键字修饰，该关键字标记的成员变量不参与序列化过程
+
+***
+
+### Properties
+
+Properties是一个Map体系的集合类，可以保存到流中或从流中加载，属性列表中的每个键及其对应的值都是一个字符串
+
+```java
+public class PropertiesDemo01 { 
+    public static void main(String[] args) {
+        //创建集合对象 
+        //Properties<String,String> prop = new Properties<String,String>(); 
+        //错误，Properties集合不需要指定具体数据类型
+        
+        Properties prop = new Properties(); 
+        
+        //存储元素 
+        prop.put("itheima001", "林青霞"); 
+        prop.put("itheima002", "张曼玉"); 
+        prop.put("itheima003", "王祖贤"); 
+        
+        //遍历集合 
+        Set<Object> keySet = prop.keySet(); 
+        for (Object key : keySet) {
+            Object value = prop.get(key); 
+            System.out.println(key + "," + value); 
+        } 
+    } 
+}
+```
+
+#### Properties作为集合的特有方法
+
+| **方法名**                                   | **说明**                                                     |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| Object setProperty(String key, String value) | 设置集合的键和值，都是String类型，底层调用 Hashtable方法 put |
+| String getProperty(String key)               | 使用此属性列表中指定的键搜索属性                             |
+| Set<String> stringPropertyNames()            | 从该属性列表中返回一个不可修改的键集，其中键及其对应的值是字符串 |
+
+```java
+public class PropertiesDemo02 { 
+    public static void main(String[] args) { 
+        //创建集合对象 
+        Properties prop = new Properties(); 
+        
+        //Object setProperty(String key, String value)：设置集合的键和值，都是 String类型
+        //底层调用Hashtable方法put 
+        
+        prop.setProperty("itheima001", "林青霞"); 
+        //以下方法可以使setProperty方法的参数设定为String，map的put方法并没有对参数的限定
+        //Object参数类型可以接受子类String类型对象，多构造一个方法即可限定参数范围
+        /* 
+        Object setProperty(String key, String value) { 
+        return put(key, value); 
+        }
+        
+        Object put(Object key, Object value) { 
+        return map.put(key, value); 
+        } 
+        */ 
+        
+        prop.setProperty("itheima002", "张曼玉"); 
+        prop.setProperty("itheima003", "王祖贤"); 
+        System.out.println(prop); //输出三个键值的对应信息
+        
+        //String getProperty(String key)：使用此属性列表中指定的键搜索属性  				
+        System.out.println(prop.getProperty("itheima001"));//返回结果正常 	
+        System.out.println(prop.getProperty("itheima0011")); // 返回null
+        
+        
+        //Set<String> stringPropertyNames()：
+        //从该属性列表中返回一个不可修改的键集，其中键及其对应的值是字符串 
+        Set<String> names = prop.stringPropertyNames(); 
+        for (String key : names) { 
+            // System.out.println(key); 
+            String value = prop.getProperty(key); 
+            System.out.println(key + "," + value); 
+        } 
+    } 
+}
+```
+
+#### Properties与IO
+
+| **方法名**                                    | **说明**                                                     |
+| --------------------------------------------- | ------------------------------------------------------------ |
+| void load(InputStream inStream)               | 从输入字节流读取属性列表（键和元素对）                       |
+| void load(Reader reader)                      | 从输入字符流读取属性列表（键和元素对）                       |
+| void store(OutputStream out, String comments) | 将此属性列表（键和元素对）写入此 Properties表中，以适合于使用 load(InputStream)方法的格式写入输出字节流 |
+| void store(Writer writer, String comments)    | 将此属性列表（键和元素对）写入此 Properties表中，以适合使用 load(Reader)方法的格式写入输出字符流 |
+
+***
+
+## 多线程
+
+### 线程、程序、进程
+
+线程与进程相似，但==线程是一个比进程更小==的执行单位
+一个进程在其执行的过程中可以产生多个线程
+与进程不同的是同类的多个线程共享同一块内存空间和一组系统资源
+所以系统在产生一个线程，或是在各个线程之间作切换工作时，负担要比进程小得多
+也正因为如此，线程也被称为轻量级进程。
+
+**程序**是含有指令和数据的文件，被存储在磁盘或其他的数据存储设备中，也就是说程序是静态的代码。
+
+**进程**是程序的一次执行过程，是系统运行程序的基本单位，因此进程是动态的。
+系统运行一个程序即是一个进程从创建，运行到消亡的过程。
+简单来说，一个进程就是一个执行中的程序，它在计算机中一个指令接着一个指令地执行着，同时，每个进程还占有某些系统资源如 CPU 时间，内存空间，文件，输入输出设备的使用权等等。
+换句话说，当程序在执行时，将会被操作系统载入内存中。
+**线程**是进程划分成的更小的运行单位。
+线程和进程最大的不同在于基本上各进程是独立的，而各线程则不一定，因为同一进程中的线程极有可能会相互影响。
+从另一角度来说，进程属于操作系统的范畴，主要是同一段时间内，可以同时执行一个以上的程序，而线程则是在同一程序内几乎同时执行一个以上的程序段。
