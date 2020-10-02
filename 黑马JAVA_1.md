@@ -2458,7 +2458,147 @@ public class PropertiesDemo02 {
 **进程**是程序的一次执行过程，是系统运行程序的基本单位，因此进程是动态的。
 系统运行一个程序即是一个进程从创建，运行到消亡的过程。
 简单来说，一个进程就是一个执行中的程序，它在计算机中一个指令接着一个指令地执行着，同时，每个进程还占有某些系统资源如 CPU 时间，内存空间，文件，输入输出设备的使用权等等。
-换句话说，当程序在执行时，将会被操作系统载入内存中。
+换句话说，当程序在执行时，将会被操作系统载入内存中
+进程的内存独立不共享
+
 **线程**是进程划分成的更小的运行单位。
-线程和进程最大的不同在于基本上各进程是独立的，而各线程则不一定，因为同一进程中的线程极有可能会相互影响。
-从另一角度来说，进程属于操作系统的范畴，主要是同一段时间内，可以同时执行一个以上的程序，而线程则是在同一程序内几乎同时执行一个以上的程序段。
+线程和进程最大的不同在于基本上==各进程是独立的==，而各线程则不一定，因为同一进程中的线程极有可能会相互影响。
+从另一角度来说，进程属于操作系统的范畴，主要是同一段时间内，可以同时执行一个以上的程序，而线程则是在同一程序内几乎同时执行一个以上的程序段
+线程的栈内存独立，一个线程一个栈，堆内存的方法区内存共享
+
+***
+
+### java.lang.Thread 类，
+
+构造方法
+
+| 方法名                                       | 说明                                         |
+| -------------------------------------------- | -------------------------------------------- |
+| public Thread():                             | 分配一个新的线程对象。                       |
+| public Thread(String name) :                 | 分配一个指定名字的新的线程对象。             |
+| public Thread(Runnable target) :             | 分配一个带有指定目标新的线程对象。           |
+| public Thread(Runnable target,String name) : | 分配一个带有指定目标新的线程对象并指定名字。 |
+
+常用方法
+
+| 方法名                                 | 说明                                                     |
+| -------------------------------------- | -------------------------------------------------------- |
+| public String getName():               | 获取当前线程名称。                                       |
+| public void start():                   | 导致此线程开始执行; Java虚拟机调用此线程的run方法。      |
+| public void run():                     | 此线程要执行的任务在此处定义代码。                       |
+| public static void sleep(long millis): | 使当前正在执行的线程以指定的毫秒数暂停（暂时停止执行）。 |
+| public static Thread currentThread():  | 返回对当前正在执行的线程对象的引用。                     |
+
+获取线程的名称：
+
+1. 使用Thread类中的方法getName()
+
+   String getName() 返回该线程的名称。
+
+2. 可以先获取当前正在执行的线程，使用线程中的方法getName()获取线程的名称。
+
+   static Thread currentThread() 返回对当前正在执行的线程对象的引用
+
+设置线程的名称
+
+1. 使用Thread类中的方法setName(名字)
+
+   void setName(String Name)改变线程名称，使之与参数name相同
+
+2. 创建一个带参数的构造方法，参数传递线程的名称，调用父类(Threat)的带参构造方法，把线程名称传递给父类，让父类给子线程起一个名字
+
+   Thread (String name) 分配新的Thread对象
+
+   ```java
+   public class Mythread extends Thread{
+       public Mythread(){} //无参构造方法
+       
+       public Mythread(String name){
+           super(name); //通过父类(Thread)构造方法起名
+       }
+   }
+   ```
+
+创建线程的方式总共有两种，一种是继承Thread类方式，一种是实现Runnable接口方式
+
+***
+
+###  java.lang.Runnable
+
+java.lang.Runnable Runnable接口应该由那些打算通过某一线程执行其实例的类来实现，类必须定义一个成为run的无参方法
+
+java.lang.Threat类的构造方法
+
+1. public Thread(Runnable target) :  分配一个带有指定目标新的线程对象。 
+2.  public Thread(Runnable target,String name) :  分配一个带有指定目标新的线程对象并指定名字。
+
+实现步骤
+
+1. 定义Runnable接口的实现类，并重写该接口的run()方法，该run()方法的方法体同样是该线程的线程执行体。 
+
+2. 创建Runnable实现类的实例，并以此实例作为Thread的target来创建Thread对象，该Thread对象才是真正的线程对象。 
+
+3. 调用线程对象的start()方法来启动线程。
+
+   ```java
+   //1.创建一个Runnable接口的实现类
+   public class RunnableImpl extends Runnable{    
+       //2.在实现类中重写Runnable接口的run方法，设置线程任务
+       @Override
+       public void run(){
+           //...
+       }
+   }
+   
+   //-------------------------------------------------
+   
+   public class Runnable_Demo{
+       public static void main(String[] args){
+           //3.创建一个Runnable接口的实现类对象
+           RunnableImpl run = new RunnableImpl();
+           //4.创建Thread类对象，构造方法中传递Runnable接口的实现类对象
+           Thread t = new Threat(run);
+           //5.调用Thread类中的start方法，开启新的线程执行run方法
+           t.start();
+       }
+       
+   }
+   ```
+
+通过实现Runnable接口，使得该类有了多线程类的特征。run()方法是多线程程序的一个执行目标。所有的多线程代码都在run方法里面。Thread类实际上也是实现了Runnable接口的类。 
+
+在启动的多线程的时候，需要先通过Thread类的构造方法Thread(Runnable target) 构造出对象，然后调用Thread对象的start()方法来运行多线程代码。 
+
+实际上所有的多线程代码都是通过运行Thread的start()方法来运行的。因此，不管是继承Thread类还是实现 Runnable接口来实现多线程，最终还是通过Thread的对象的API来控制线程的，熟悉Thread类的API是进行多线程 编程的基础。 
+
+***
+
+### Thread和Runnable的区别
+
+如果一个类继承Thread，则不适合资源共享。但是如果实现了Runable接口的话，则很容易的实现资源共享。 
+
+实现==**Runnable接口**==比继承Thread类所具有的==优势==：
+
+1. 适合多个相同的程序代码的线程去共享同一个资源。 
+
+2. 可以避免java中的单继承的局限性。 
+
+   继承了Thread类的子类不能继承其他的类
+
+   实现了Runnable接口仍然可以继承其他的类，实现其他的接口
+
+3. 增加程序的健壮性，实现解耦操作，代码可以被多个线程共享，代码和线程独立。 
+
+   实现Runnable接口的方式，把设置线程任务和开启新线程进行了分离（解耦）
+
+   实现类中，重写了run方法：用来设置线程任务
+
+   创建Thread类对象，调用start()方法：用来开启新线程
+
+4. 线程池只能放入实现Runable或Callable类线程，不能直接放入继承Thread的类。 
+
+扩充：在java中，每次程序运行至少启动2个线程。一个是main线程，一个是垃圾收集线程。因为每当使用 
+
+java命令执行一个类的时候，实际上都会启动一个JVM，每一个JVM其实在就是在操作系统中启动了一个进 
+
+程。 
