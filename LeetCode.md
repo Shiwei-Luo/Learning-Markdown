@@ -1,3 +1,5 @@
+双指针问题考虑单调性
+
 ## 202. Happy Number(Easy)
 
 平方数的和最终会产生循环，可将其视为环形链表，可以考虑使用快慢指针。
@@ -140,7 +142,7 @@ public class Solution {
 
 ***
 
-## 83.Remove Duplicates from Sorted List(Easy)
+## 83. Remove Duplicates from Sorted List(Easy)
 
 双指针删除链表中的重复元素
 
@@ -172,7 +174,7 @@ class Solution {
 
 ***
 
-## 19.Remove Nth Node From End of List(Medium)
+## 19. Remove Nth Node From End of List(Medium)
 
 让faster指针从起始点往后跑n步，然后让slower指针和faster指针一起跑，直到faster\==null（faster指针指出链表尾）时，slower指针恰好指向要删除的元素，通常删除元素需要添加一个prev指针指向被删除元素的前一个元素，在本题中将faster指针调整至faster.next\==null时，即faster指针指向链表末尾元素时，slower=slower.next.next删除元素，还有一种特殊情况，即要删除的元素时链表头元素时，此时faster已经跑到链表尾，此时直接返回head.next
 
@@ -208,7 +210,7 @@ class Solution {
 
 ***
 
-## 977.Squares of a Sorted Array(Easy)
+## 977. Squares of a Sorted Array(Easy)
 
 数组中“0”附近的元素的平方值较小，故以正负数为分界点，采用双指针分别想数组头数组尾遍历。
 
@@ -254,7 +256,7 @@ class Solution {
 
 ***
 
-## 713.Subarray Product Less Than K(Medium)
+## 713. Subarray Product Less Than K(Medium)
 
 求所有连续子数组中，数组中所有元素乘积小于k的子数组个数
 
@@ -324,4 +326,232 @@ public int numSubarrayProductLessThanK(int[] nums, int k) {
 ### reference: https://blog.csdn.net/katrina95/article/details/79366608
 
 ***
+
+##  1. Two Sum(Easy)
+
+C++中，表的时间复杂度为O(logn),哈希表的时间复杂度O(1),熟悉哈希表的操作，如方法
+
++ `boolean containsKey(Object key)`
++ `boolean containsValue(Object Value)`
++ `V get(Object key)`
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        HashMap<Integer,Integer> hm = new HashMap<Integer,Integer>();
+        int[] res = new int[2];
+        for(int i=0;i<nums.length;i++){
+            //熟悉方法，
+            if(hm.containsKey(target-nums[i])){
+                res[0] = i;
+                res[1] = hm.get(target-nums[i]);
+                break;
+            }else{
+                hm.put(nums[i],i);
+            }
+        }
+        return res;
+    }
+}
+```
+
+###Tags: Array,Hash Table
+
+### reference: Null
+
+***
+
+## 2. Add Two Numbers
+
+设置变量carry表示加法进位，注意出循环条件：任一链表未遍历到末尾或进位未归零，注意代码尽可能简单整洁。
+
+```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        int carry = 0;
+        ListNode res = new ListNode(-1);
+        ListNode head = res;
+        int sum = -1;
+        while(l1!=null||l2!=null||carry!=0){
+            sum = 0;
+            if(l1!=null){
+                sum += l1.val;
+                l1 = l1.next;
+            }
+            if(l2!=null){
+                sum +=l2.val;
+                l2 = l2.next;
+            }
+            if(carry!=0){
+                sum +=carry;
+                carry = 0;
+            }
+            res.next = new ListNode(sum%10);
+            if (sum>=10){
+                carry =1; 
+            }
+            res = res.next;
+        }
+        return head.next;
+    }
+}
+```
+
+###Tags: Linked List,Math
+
+### reference:https://www.acwing.com/video/1318/
+
+***
+
+## 3. Longest Substring without Repeating Characters(Medium)
+
+考察双指针，双指针问题最重要找单调性，即指针的移动方向。
+本题中left,right指针，若right++，则left只能停在原地或递增。
+注意熟悉哈希表的操作，尽可能简化代码。
+
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        HashMap<Character,Integer> m = new HashMap();
+        int result = 0;        
+        for(int right=0,left=0;right<s.length();right++){
+            Character c = s.charAt(right);
+            while(m.containsKey(c)){
+                m.remove(s.charAt(left));
+                left++;
+            }
+            m.put(c,right);                        
+            result = Math.max(result,right-left+1);
+        }
+        return result;
+    }
+}
+```
+
+###Tags: ==Two Pointers==,Hash Table, String, ==Sliding Window==
+
+### reference: https://acwing.com/
+
+
+
+***
+
+## 4. Median of Two Sorted Arrays(Hard)
+
+个人描述
+
+
+
+```java
+class Solution {
+        public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int totallen  =  nums1.length+nums2.length;
+        if(totallen%2==0){
+            int left = getKthElement(nums1,0,nums2,0,totallen/2);
+            int right = getKthElement(nums1,0,nums2,0,totallen/2+1);
+            return (left+right)/2.0;
+        }else{
+            return getKthElement(nums1,0,nums2,0,totallen/2+1);
+        }
+    }
+
+    public  int getKthElement(int[] nums1,int i,int[] nums2,int j,int k){
+        if(nums1.length-i > nums2.length-j){
+            return getKthElement(nums2,j,nums1,i,k);
+        }
+        if(nums1.length == i){
+            return nums2[j+k-1];
+        }
+        if(k == 1){
+                return Math.min(nums1[i],nums2[j]);
+        }
+        int si = Math.min(i + k/2,nums1.length);
+        int sj = j + k- k/2;
+        if(nums1[si-1]>nums2[sj-1]){
+            return  getKthElement(nums1,i,nums2,sj,k-(sj-j));
+        }else{
+            return getKthElement(nums1,si,nums2,j,k-(si-i));
+        
+        // int si = Math.min(Math.abs(i + k/2 -1),nums1.length-1);
+        // int sj = j + k- k/2 -1;
+        // if(nums1[si]>nums2[sj]){
+        //     return getKthElement(nums1,i,nums2,sj+1,k-(sj-j+1));
+        // }else{
+        //     return getKthElement(nums1,si+1,nums2,j,k-(si-i+1));
+        }
+    }
+}
+```
+
+###Tags: ==Example==,Example
+
+### reference: https://blog.csdn.net/
+
+
+
+***
+
+***
+
+
+
+***
+
+
+
+## 题号.题目(难度)
+
+在两个以排序好的数组中找出两数组中元素的中位数。
+
+暴力解法：可以将两个有序数组合并成一个排序数组，该方法时间复杂度为O(m+n)，
+
+将问题转换，在两个排序好的数组中找出第K大的值。先假设`(nums1.length<=nums2.length) is true`分别在nums1,nums2数组找出第k/2个元素，考虑k的奇偶值，严格来说nums1取第k/2个元素，nums2取        第(k-k/2)个元素，两元素比较，分两种情况
+
+1. 若nums1[k/2-1]<nums2[k/2-1]，nums1的，考虑元素总个数为奇数情
+   
+
+```java
+class Solution {
+        public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int totallen  =  nums1.length+nums2.length;
+        if(totallen%2==0){
+            int left = getKthElement(nums1,0,nums2,0,totallen/2);
+            int right = getKthElement(nums1,0,nums2,0,totallen/2+1);
+            return (left+right)/2.0;
+        }else{
+            return getKthElement(nums1,0,nums2,0,totallen/2+1);
+        }
+    }
+
+    public  int getKthElement(int[] nums1,int i,int[] nums2,int j,int k){
+        if(nums1.length-i > nums2.length-j){
+            return getKthElement(nums2,j,nums1,i,k);
+        }
+        if(nums1.length == i){
+            return nums2[j+k-1];
+        }
+        if(k == 1){
+                return Math.min(nums1[i],nums2[j]);
+        }
+        int si = Math.min(i + k/2,nums1.length);
+        int sj = j + k- k/2;
+        if(nums1[si-1]>nums2[sj-1]){
+            return  getKthElement(nums1,i,nums2,sj,k-(sj-j));
+        }else{
+            return getKthElement(nums1,si,nums2,j,k-(si-i));
+        
+        // int si = Math.min(Math.abs(i + k/2 -1),nums1.length-1);
+        // int sj = j + k- k/2 -1;
+        // if(nums1[si]>nums2[sj]){
+        //     return getKthElement(nums1,i,nums2,sj+1,k-(sj-j+1));
+        // }else{
+        //     return getKthElement(nums1,si+1,nums2,j,k-(si-i+1));
+        }
+    }
+}
+```
+
+###Tags: ==Example==,Example
+
+### reference: https://blog.csdn.net/
 

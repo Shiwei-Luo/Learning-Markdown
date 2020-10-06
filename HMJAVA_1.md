@@ -2912,3 +2912,531 @@ public class WaitingTest {
 
 Timed Waiting（计时等待） 与 Waiting（无限等待） 状态联系还是很紧密的， Waiting（无限等待） 状态中wait方法是空参的，而timed waiting（计时等待） 中wait方法是带参的。 如果没有得到（唤醒）通知，那么线程就处于Timed Waiting状态,直到倒计时完毕自动醒来；如果在倒 计时期间得到（唤醒）通知，那么线程从Timed Waiting状态立刻唤醒
 
+***
+
+## 网络编程入门
+
+### 网络编程概述
+
+* 计算机网络
+
+  是指将地理位置不同的具有独立功能的多台计算机及其外部设备，通过通信线路连接起来，在网络操作系统，网络管理软件及网络通信协议的管理和协调下，实现资源共享和信息传递的计算机系统
+
+* 网络编程
+
+  在网络通信协议下，实现网络互连的不同计算机上运行的程序间可以进行数据交换
+
+***
+
+### IP地址
+
+要想让网络中的计算机能够互相通信，必须为每台计算机指定一个标识号，通过这个标识号来指定要接收数据的计算机和识别发送的计算机，而IP地址就是这个标识号。也就是设备的标识
+
+IP地址是网络中设备的唯一标识
+
+* IPv4：是给每个连接在网络上的主机分配一个32bit地址。按照TCP/IP规定，IP地址用二进制来表示，每个IP地址长32bit，也就是4个字节。例如一个采用二进制形式的IP地址是“11000000 10101000 00000001 01000010”。为了方便使用，IP地址经常被写成十进制的形式，中间使用符号“.”分隔不同的字节。于是，上面的IP地址可以表示为“192.168.1.66”。IP地址的这种表示法叫做“点分十进制表示法”。 
+
+* IPv6：由于互联网的蓬勃发展，IP地址的需求量愈来愈大，但是网络地址资源有限，使得IP的分配越发紧张。为了扩大地址空间，通过IPv6重新定义地址空间，采用128位地址长度，每16个字节一组，分成8组十六进制数，这样就解决了网络地址资源数量不够的问题 
+
+常用命令
+
++ ipconfig：查看本机IP地址
+
++ ping IP地址：检查网络是否连通 
+
+特殊IP地址
+127.0.0.1：是回送地址，可以代表本机地址，一般用来测试使用
+
+DOS常用命令
+
++ ipconfifig：查看本机IP地址
++ ping IP地址：检查网络是否连通
+
+#### InetAddress：
+
+InetAddress此类表示Internet协议（IP）地址
+
+| **方法名**                                | **说明**                                                     |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| static InetAddress getByName(String host) | 确定主机名称的IP地址。主机名称可以是机器名称，也可以是IP地址 |
+| String getHostName()                      | 获取此IP地址的主机名                                         |
+| String getHostAddress()                   | 返回文本显示中的IP地址字符串                                 |
+
+```java
+public class InetAddressDemo { 
+    public static void main(String[] args) throws UnknownHostException { 
+        //InetAddress address = InetAddress.getByName("itheima"); 
+        InetAddress address = InetAddress.getByName("192.168.1.66"); //常用方法
+        
+        //public String getHostName()：获取此IP地址的主机名 
+        String name = address.getHostName(); 
+        
+        //public String getHostAddress()：返回文本显示中的IP地址字符串 
+        String ip = address.getHostAddress(); 
+        System.out.println("主机名：" + name); 
+        System.out.println("IP地址：" + ip); 
+    } 
+}
+```
+
+***
+
+### 端口
+
+网络的通信，本质上是两个应用程序的通信。每台计算机都有很多的应用程序，那么在网络通信时，如何区分这些应用程序呢？如果说IP地址可以唯一标识网络中的设备，那么端口号就可以唯一标识设备中的应用程序了。也就是应用程序的标识
+
+端口是设备上应用程序的唯一标识
+
+端口号用两个字节表示的整数，它的取值范围是0\~65535。其中，0\~1023之间的端口号用于一些知名的网络服务和应用，普通的应用程序需要使用1024以上的端口号。如果端口号被另外一个服务或应用所占用，会导致当前程序启动失败
+
+***
+
+### 协议
+
+通过计算机网络可以使多台计算机实现连接，位于同一个网络中的计算机在进行连接和通信时需要遵守一定的规则，。在计算机网络中，这些连接和通信的规则被称为网络通信协议，它对数据的传输格式、传输速率、传输步骤等做了统一规定，通信双方必须同时遵守才能完成数据交换。常见的协议有UDP协议和TCP协议
+
+#### UDP协议
+
++ 用户数据报协议(User Datagram Protocol)
++ UDP是==无连接通信协议==，即在数据传输时，数据的发送端和接收端不建立逻辑连接。简单来说，当一台计算机向另外一台计算机发送数据时，发送端不会确认接收端是否存在，就会发出数据，同样接收端在收到数据时，也不会向发送端反馈是否收到数据。
++ 由于使用UDP协议消耗资源小，通信效率高，所以通常都会用于音频、视频和普通数据的传输
+  例如视频会议通常采用UDP协议，因为这种情况即使偶尔丢失一两个数据包，也不会对接收结果产生太大影响。
++ 但是在使用UDP协议传送数据时，由于UDP的面向无连接性，不能保证数据的完整性，因此在传输重要数据时不建议使用UDP协议
+
+#### TCP协议
+
++ 传输控制协议 (Transmission Control Protocol)
++ TCP协议是==面向连接==的通信协议，即传输数据之前，在发送端和接收端建立逻辑连接，然后再传输数据，它提供了两台计算机之间==可靠无差错==的数据传输。在TCP连接中必须要明确客户端与服务器端，由客户端向服务端发出连接请求，每次连接的创建都需要经过“三次握手”
+
++ 三次握手：TCP协议中，在发送数据的准备阶段，客户端与服务器之间的三次交互，以保证连接的可靠
+  + 第一次握手，客户端向服务器端发出连接请求，等待服务器确认
+  + 第二次握手，服务器端向客户端回送一个响应，通知客户端收到了连接请求
+  + 第三次握手，客户端再次向服务器端发送确认信息，确认连接
++ 完成三次握手，连接建立后，客户端和服务器就可以开始进行数据传输了。由于这种面向连接的特性，TCP协议可以保证传输数据的安全，所以应用十分广泛。例如上传文件、下载文件、浏览网页等
+
+***
+
+### UDP通信原理
+
+UDP协议是一种不可靠的网络协议，它在通信的两端各建立一个Socket对象，但是这两个Socket只是发送，接收数据的对象，因此对于基于UDP协议的通信双方而言，没有所谓的客户端和服务器的概念。
+Java提供了DatagramSocket类作为基于UDP协议的Socket
+
+#### **UDP发送数据**
+
+**DatagramSocket，DatagramPacket构造方法**
+
+| 方法名                                                      | 说明                                                 |
+| ----------------------------------------------------------- | ---------------------------------------------------- |
+| DatagramSocket()                                            | 创建数据报套接字并将其绑定到本机地址上的任何可用端口 |
+| DatagramPacket(byte[] buf,int len,InetAddress add,int port) | 创建数据包,发送长度为len的数据包到指定主机的指定端口 |
+
+**DatagramSocket相关方法**
+
+| 方法名                         | 说明                   |
+| ------------------------------ | ---------------------- |
+| void send(DatagramPacket p)    | 发送数据报包           |
+| void close()                   | 关闭数据报套接字       |
+| void receive(DatagramPacket p) | 从此套接字接受数据报包 |
+
+1. 创建发送端的Socket对象(DatagramSocket)
+
+   DatagramSocket()
+
+2. 创建数据，并把数据打包
+
+   DatagramPacket(byte[] buf, int length, InetAddress address, int port)
+
+3. 调用DatagramSocket对象的方法发送数据
+
+   void send(DatagramPacket p)
+
+4. 关闭发送端
+
+   void close()
+
+#### **UDP接收数据**
+
+**DatagramSocket构造方法**
+
+| 方法名                              | 说明                                            |
+| ----------------------------------- | ----------------------------------------------- |
+| DatagramPacket(byte[] buf, int len) | 创建一个DatagramPacket用于接收长度为len的数据包 |
+
+**DatagramPacket相关方法**
+
+| 方法名           | 说明                                     |
+| ---------------- | ---------------------------------------- |
+| byte[] getData() | 返回数据缓冲区                           |
+| int getLength()  | 返回要发送的数据的长度或接收的数据的长度 |
+
+1. 创建接收端的Socket对象(DatagramSocket)
+   DatagramSocket(int port)
+2. 创建一个数据包，用于接收数据
+   DatagramPacket(byte[] buf, int length)
+3. 调用DatagramSocket对象的方法接收数据
+   void receive(DatagramPacket p)
+4. 解析数据包，并把数据在控制台显示
+   byte[] getData()
+   int getLength()
+5. 关闭接收端
+   void close()
+
+```java
+public class SendDemo { 
+    public static void main(String[] args) throws IOException { 
+        //创建发送端的Socket对象(DatagramSocket) 
+        //DatagramSocket() 构造数据报套接字并将其绑定到本地主机上的任何可用端口 
+        DatagramSocket ds = new DatagramSocket(); 
+        
+        //创建数据，并把数据打包 
+        //DatagramPacket(byte[] buf, int length, InetAddress address, int port) 
+        //构造一个数据包，发送长度为 length的数据包到指定主机上的指定端口号。 
+        byte[] bys = "hello,udp,我来了".getBytes(); 
+        DatagramPacket dp = new DatagramPacket(bys,bys.length,InetAddress.getByName("192.168.1.66"),12345); 
+        
+        //调用DatagramSocket对象的方法发送数据 
+        //void send(DatagramPacket p)从此套接字发送数据报包 
+        ds.send(dp); 
+        //关闭发送端 
+        //void close() 关闭此数据报套接字 
+        ds.close(); 
+    } 
+}
+
+//------------------------------------------------------------------------
+//先执行ReceiveDemo，再执行SendDemo，保证端口相同
+
+public class ReceiveDemo { 
+    public static void main(String[] args) throws IOException { 
+        //创建接收端的Socket对象(DatagramSocket) 
+        DatagramSocket ds = new DatagramSocket(12345); 
+        while (true) { 
+            //创建一个数据包，用于接收数据 
+            byte[] bys = new byte[1024]; 
+            DatagramPacket dp = new DatagramPacket(bys, bys.length); 
+            
+            //byte[] datas = dp.getData();
+            //String str = new String(datas,0,dp.getLength());
+            
+            //调用DatagramSocket对象的方法接收数据 ds.receive(dp); 
+            //解析数据包，并把数据在控制台显示 
+            System.out.println("数据是：" + new String(dp.getData(), 0, dp.getLength())); 
+        } 
+    } 
+}
+```
+
+***
+
+### TCP通信原理
+
+TCP通信协议是一种可靠的网络协议，它在通信的两端各建立一个Socket对象，从而在通信的两端形成网络虚拟链路，一旦建立了虚拟的网络链路，两端的程序就可以通过虚拟链路进行通信。
+
++ Java对基于TCP协议的的网络提供了良好的封装，使用Socket对象来代表两端的通信端口，并通过Socket产生IO流来进行网络通信。
++ Java为客户端提供了Socket类，为服务器端提供了ServerSocket类 。
+
+#### **TCP发送数据**
+
+**Socket构造方法**
+
+| **方法名**                           | **说明**                                       |
+| ------------------------------------ | ---------------------------------------------- |
+| Socket(InetAddress address,int port) | 创建流套接字并将其连接到指定IP指定端口号       |
+| Socket(String host, int port)        | 创建流套接字并将其连接到指定主机上的指定端口号 |
+
+**Socket相关方法**
+
+| **方法名**                     | **说明**             |
+| ------------------------------ | -------------------- |
+| InputStream getInputStream()   | 返回此套接字的输入流 |
+| OutputStream getOutputStream() | 返回此套接字的输出流 |
+
+1. 创建客户端的Socket对象(Socket)
+   Socket(String host, int port)
+2. 获取输出流，写数据
+   OutputStream getOutputStream()
+3. 释放资源
+   void close()
+
+#### **TCP发送数据**
+
+**ServerSocket构造方法**
+
+| **方法名**   | **说明**                         |
+| ------------ | -------------------------------- |
+| ServerSocket | 创建绑定到指定端口的服务器套接字 |
+
+**ServerSocket相关方法**
+
+| **方法名**      | **说明**                       |
+| --------------- | ------------------------------ |
+| Socket accept() | 监听要连接到此的套接字并接受它 |
+
+1. 创建服务器端的Socket对象(ServerSocket)
+   ServerSocket(int port)
+2. 监听客户端连接，返回一个Socket对象
+   Socket accept()
+3. 获取输入流，读数据，并把数据显示在控制台
+   InputStream getInputStream() 
+4. 释放资源
+   void close()
+
+```java
+public class ClientDemo {
+    public static void main(String[] args) throws IOException {
+        Socket sk = new Socket("10.6.207.85",12345);
+        OutputStream os = sk.getOutputStream();
+        os.write("Hello,TCP,:-)".getBytes());
+        sk.close();
+    }
+}
+
+//-----------------------------------------------------------------
+
+public class ServerDemo {
+    public static void main(String[] args) throws IOException {
+
+        ServerSocket ss =  new ServerSocket(12345);
+
+        Socket s = ss.accept();
+
+        InputStream is = s.getInputStream();
+        byte[] bys = new byte[1024];
+        int len = is.read(bys);
+        String data = new String(bys,0,len);
+        System.out.println(data);
+        s.close();
+        ss.close()
+    }
+}
+```
+
+***
+
+## Lambda
+
+### Lambda表达式格式
+
+```java
+(形式参数) -> {代码块}
+
+new Thread(()->{
+    System.out.println("多线程程序启动了");
+}).start();
+```
+
+`(形式参数)`：如果有多个参数，参数之间用逗号隔开；如果没有参数，留空即可
+`->`：由英文中画线和大于符号组成，固定写法。代表指向动作
+`{ }`：包含一段代码，称为代码块，方法体中要实现的内容
+
+**Lambda表达式的使用前提**
+
++ 有一个接口
++ 接口中有且仅有一个抽象方法
+
+***
+
+### Lambda表达式的省略模式
+
+省略的规则
+
++ ==参数类型==可以省略。但是有==多个参数==的情况下，==不能只省略一个==
++ 如果参数==有且仅有一个==，那么==小括号==可以省略
++ 如果代码块的语句==只有一条==，可以省略==大括号和分号，和return关键字==
+
+```java
+public interface Addable { 
+    int add(int x, int y); 
+}
+
+public interface Flyable { 
+    void fly(String s); 
+}
+
+public class LambdaDemo { 
+    public static void main(String[] args) { 
+        // useAddable((int x,int y) -> { 
+        // return x + y; // }); 
+        //参数的类型可以省略 
+        useAddable((x, y) -> { 
+            return x + y; 
+        }); 
+        
+        // useFlyable((String s) -> { 
+        // System.out.println(s); 
+        // }); 
+        //如果参数有且仅有一个，那么小括号可以省略 
+        useFlyable(s -> { 
+        System.out.println(s); 
+        }); 
+        
+        //如果代码块的语句只有一条，可以省略大括号和分号 
+        useFlyable(s -> System.out.println(s)); 
+        
+        //如果代码块的语句只有一条，可以省略大括号和分号，如果有return，return也要省略掉 
+        useAddable((x, y) -> x + y); 
+    }
+    private static void useFlyable(Flyable f) { 
+        f.fly("风和日丽，晴空万里"); 
+    }
+    private static void useAddable(Addable a) {
+        int sum = a.add(10, 20); 
+        System.out.println(sum); 
+    } 
+}
+```
+
+***
+
+### Lambda表达式注意事项：
+
++ 使用Lambda必须要有==接口==，并且要求接口中==有且仅有一个==抽象方法
+
++ 必须有上下文环境，才能推导出Lambda对应的接口
+
+  ```java
+  Runnable r = () -> System.out.Println("Lambda");
+  new Thread(r).start();
+  ```
+
+  
+
++ 根据==局部变量==的赋值得知Lambda对应的接口：
+
+  `Runnable r = () -> System.out.println("Lambda表达式");`
+
++ 根据==调用方法==的参数得知Lambda对应的接口：
+
+  `new Thread(() -> System.out.println("Lambda表达式")).start(); `
+
+***
+
+### Lambda表达式和匿名内部类的区别
+
++ 所需类型不同
+  + 匿名内部类：可以是接口，也可以是抽象类，还可以是具体类
+  + Lambda表达式：只能是接口
++ 使用限制不同
+  + 如果接口中有且仅有一个抽象方法，可以使用Lambda表达式，也可以使用匿名内部类
+  + 如果接口中多于一个抽象方法，只能使用匿名内部类，而不能使用Lambda表达式
++ 实现原理不同
+  + 匿名内部类：编译之后，产生一个==单独的.class字节码文件==
+  + Lambda表达式：编译之后，没有一个单独的.class字节码文件。对应的==字节码==会在运行的时候==动态生成==
+
+***
+
+## 接口组成更新
+
+### 接口组成
+
++ 常量`public static final`
++ 抽象方法`public abstract`
++ 默认方法(Java 8)
++ 静态方法(Java 8)
++ 私有方法(Java 9)
+
+***
+
+### 接口中的默认方法
+
+**接口中默认方法的定义格式**
+
+```java
+public default 返回值类型 方法名(参数列表) {
+	//...................
+}
+
+//-------------------------------------
+
+public default void show3() {   }
+```
+
+
+接口中默认方法的注意事项
+
++ 默认方法不是抽象方法，所以不强制被重写。但是可以被重写，重写的时候去掉default关键
++ public可以省略，default不能省略
+
+***
+
+### 接口中的静态方法
+
+**接口中静态方法的定义格式**
+
+```java
+public static 返回值类型 方法名(参数列表) {
+//......
+}
+
+//--------------------------------------------
+
+public static void show() {   }
+```
+
+**接口中静态方法的注意事项**
+
++ 静态方法==只能通过接口名调用==，不能通过实现类名或者对象名调用
++ public可以省略，static不能省略
+
+***
+
+1.4 接口中私有方法
+
+Java 9中新增了带方法体的私有方法，这其实在Java 8中就埋下了伏笔：Java 8允许在接口中定义带方法体的默认方法和静态方法。这样可能就会引发一个问题：当两个默认方法或者静态方法中包含一段相同的代码实现时，程序必然考虑将这段实现代码抽取成一个共性方法，而这个共性方法是不需要让别人使用的，因此用私有给隐藏起来，这就是Java 9增加私有方法的必然性
+
+**接口中私有方法的定义格式**
+
+```java
+private 返回值类型 方法名(参数列表) {   }
+private void show() {   }
+private static 返回值类型 方法名(参数列表) {   }
+private static void method() {   }
+```
+
+**接口中私有方法的注意事项**
+
++ 默认方法可以调用私有的静态方法和非静态方法
++ 静态方法只能调用私有的静态方法
+
+***
+
+## 方法引用
+
+**方法引用符**
+`::`该符号为引用运算符，而它所在的表达式被称为方法引用
+
+回顾一下我们在体验方法引用中的代码
+Lambda表达式：usePrintable(s -> System.out.println(s));
+分析：拿到参数 s 之后通过Lambda表达式，传递给 System.out.println 方法去处理
+方法引用：usePrintable(System.out::println);
+分析：直接使用 System.out 中的 println 方法来取代Lambda，代码更加的简洁
+
+**推导与省略**
+
++ 如果使用Lambda，那么根据“可推导就是可省略”的原则，无需指定参数类型，也无需指定的重载形式，它们都将被自动推导
++ 如果使用方法引用，也是同样可以根据上下文进行推导
++   方法引用是Lambda的孪生兄弟
+
+***
+
+### Lambda表达式支持的方法引用
+
+常见的引用方式
+
++ 引用类方法
++ 引用对象的实例方法
++ 引用类的实例方法
++ 引用构造器
+
+**引用类方法**
+
+即引用类的静态方法
+
++ 格式：类名::静态方法
++ 范例：Integer::parseInt
+  Integer类的方法：public static int parseInt(String s) 将此String转换为int类型数据
+
+
+
+***
+
